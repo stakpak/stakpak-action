@@ -122,7 +122,12 @@ runs:
       shell: bash
       run: |
         echo "Downloading warden plugin..."
-        echo "API key configured: $(if [ -n "$STAKPAK_API_KEY" ]; then echo "Yes"; else echo "No"; fi)"
+        echo "Checking for config file..."
+        if [ -f "$HOME/.stakpak/config.toml" ]; then
+          echo "Config file found"
+        else
+          echo "Config file not found at $HOME/.stakpak/config.toml"
+        fi
 
         # Try to run the command with timeout to avoid hanging on prompts
         timeout 30 stakpak warden version || {

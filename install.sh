@@ -148,18 +148,47 @@ fi
 echo "Stakpak CLI $ACTUAL_VERSION installed successfully!"
 echo "Binary location: $INSTALL_DIR/$BINARY_NAME"
 
-# Configure API key if provided
-if [ -n "$API_KEY" ]; then
+# Configure API key if provided and not in install-only mode
+if [ -n "$API_KEY" ] && [ "$INSTALL_ONLY" != "true" ]; then
     echo "Configuring API key..."
-    "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"
-    echo "API key configured successfully"
+    echo "API key length: ${#API_KEY}"
+    echo "Running login command..."
+    
+    # Ensure binary is executable and in PATH
+    chmod +x "$INSTALL_DIR/$BINARY_NAME"
+    
+    # Run login command with error handling
+    if "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"; then
+        echo "API key configured successfully"
+        echo "Verifying config file..."
+        if [ -f "$HOME/.stakpak/config.toml" ]; then
+            echo "Config file created successfully"
+        else
+            echo "Warning: Config file not found at $HOME/.stakpak/config.toml"
+        fi
+    else
+        echo "Error: Login command failed"
+        echo "Attempting to create config directory..."
+        mkdir -p "$HOME/.stakpak"
+        
+        # Try login again
+        if "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"; then
+            echo "API key configured successfully on second attempt"
+        else
+            echo "Error: Login failed twice. Check API key validity."
+            exit 1
+        fi
+    fi
+elif [ -n "$API_KEY" ]; then
+    echo "Install-only mode: API key will be configured later"
 fi
 
 # Verify installation
 echo "Verifying installation..."
 if [ -n "$API_KEY" ]; then
-    # API key is available, version check should work
-    "$INSTALL_DIR/$BINARY_NAME" version
+    # API key is available, try version check
+    echo "Testing CLI with API key..."
+    "$INSTALL_DIR/$BINARY_NAME" version || echo "Version check failed - CLI installed but may need different authentication"
 else
     # No API key provided, skip version check
     echo "No API key provided - skipping version check"
