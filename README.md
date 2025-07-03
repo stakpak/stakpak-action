@@ -22,7 +22,7 @@ steps:
   - name: Setup Stakpak CLI
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
 
   - name: Run Stakpak
     run: stakpak version
@@ -37,7 +37,7 @@ steps:
   - name: Setup and Run Stakpak Agent
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
       prompt: "Analyze this repository for security vulnerabilities and generate a report"
 ```
 
@@ -49,7 +49,7 @@ steps:
     uses: stakpak/agent@v1
     with:
       version: "v0.1.118"
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
 ```
 
 ### Install Only (No API Key Configuration)
@@ -59,7 +59,7 @@ steps:
   - name: Setup Stakpak Agent
     uses: stakpak/agent@v1
     with:
-      install-only: "true"
+      install_only: "true"
 ```
 
 ### Advanced Prompt Configuration
@@ -71,7 +71,7 @@ steps:
   - name: Run Stakpak Agent
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
       prompt: "Review this pull request to make sure Terraform code follows our natural language linting rules"
       max_steps: 30
       verbose: true
@@ -83,9 +83,9 @@ steps:
 | Input           | Description                                                 | Required | Default  |
 | --------------- | ----------------------------------------------------------- | -------- | -------- |
 | `version`       | Version of Stakpak to install (e.g., "v0.1.118", "latest")  | No       | `latest` |
-| `api-key`       | Stakpak API key for authentication                          | No       | `''`     |
-| `install-only`  | Only install Stakpak CLI without configuring API key        | No       | `false`  |
-| `cache-enabled` | Enable caching of Stakpak binary for faster subsequent runs | No       | `true`   |
+| `api_key`       | Stakpak API key for authentication                          | No       | `''`     |
+| `install_only`  | Only install Stakpak CLI without configuring API key        | No       | `false`  |
+| `cache_enabled` | Enable caching of Stakpak binary for faster subsequent runs | No       | `true`   |
 | `prompt`        | Prompt to run Stakpak Agent with                            | No       | `''`     |
 | `max_steps`     | Maximum number of steps for Stakpak Agent execution         | No       | `20`     |
 | `verbose`       | Enable verbose output for Stakpak Agent execution           | No       | `true`   |
@@ -97,7 +97,7 @@ steps:
 | ----------- | ------------------------------------------------ |
 | `version`   | The version of Stakpak CLI that was installed    |
 | `path`      | Path to the installed Stakpak CLI binary         |
-| `cache-hit` | Whether the installation was restored from cache |
+| `cache_hit` | Whether the installation was restored from cache |
 
 ## Examples
 
@@ -116,7 +116,7 @@ jobs:
       - name: Setup and Run Stakpak Agent
         uses: stakpak/agent@v1
         with:
-          api-key: ${{ secrets.STAKPAK_API_KEY }}
+          api_key: ${{ secrets.STAKPAK_API_KEY }}
           prompt: "Analyze this repository for security vulnerabilities and generate a report"
           max_steps: 25
 ```
@@ -140,7 +140,7 @@ jobs:
       - name: Setup Stakpak Agent
         uses: stakpak/agent@v1
         with:
-          api-key: ${{ secrets.STAKPAK_API_KEY }}
+          api_key: ${{ secrets.STAKPAK_API_KEY }}
 
       - name: Test Stakpak
         run: stakpak version
@@ -154,7 +154,7 @@ steps:
     id: setup-stakpak
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
 
   - name: Display Installation Info
     run: |
@@ -208,13 +208,13 @@ steps:
   - name: Setup Stakpak Agent (no cache)
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
-      cache-enabled: "false"
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
+      cache_enabled: "false"
 ```
 
 ### Cache Status
 
-You can check if the binary was restored from cache using the `cache-hit` output:
+You can check if the binary was restored from cache using the `cache_hit` output:
 
 ```yaml
 steps:
@@ -222,11 +222,11 @@ steps:
     id: setup-stakpak
     uses: stakpak/agent@v1
     with:
-      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      api_key: ${{ secrets.STAKPAK_API_KEY }}
 
   - name: Check cache status
     run: |
-      if [ "${{ steps.setup-stakpak.outputs.cache-hit }}" = "true" ]; then
+      if [ "${{ steps.setup-stakpak.outputs.cache_hit }}" = "true" ]; then
         echo "✅ Binary restored from cache"
       else
         echo "📥 Binary downloaded and cached"

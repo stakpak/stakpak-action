@@ -11,17 +11,17 @@ inputs:
     required: false
     default: "latest"
 
-  api-key:
+  api_key:
     description: "Stakpak API key for authentication"
     required: false
     default: ""
 
-  install-only:
+  install_only:
     description: "Only install Stakpak CLI without configuring API key"
     required: false
     default: "false"
 
-  cache-enabled:
+  cache_enabled:
     description: "Enable caching of Stakpak binary"
     required: false
     default: "true"
@@ -53,7 +53,7 @@ outputs:
   path:
     description: "Path to the installed Stakpak CLI binary"
 
-  cache-hit:
+  cache_hit:
     description: "Whether the installation was restored from cache"
 
 runs:
@@ -72,7 +72,7 @@ runs:
         echo "Resolved version: $RESOLVED_VERSION"
 
     - name: Cache Stakpak binary
-      if: inputs.cache-enabled == 'true'
+      if: inputs.cache_enabled == 'true'
       uses: actions/cache@v4
       id: cache-stakpak
       with:
@@ -82,13 +82,13 @@ runs:
           stakpak-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Setup Stakpak Agent
-      if: steps.cache-stakpak.outputs.cache-hit != 'true'
+      if: steps.cache-stakpak.outputs.cache_hit != 'true'
       shell: bash
       run: |
         # Set action inputs as environment variables
         export INPUT_VERSION="${{ inputs.version }}"
-        export INPUT_API_KEY="${{ inputs.api-key }}"
-        export INPUT_INSTALL_ONLY="${{ inputs.install-only }}"
+        export INPUT_API_KEY="${{ inputs.api_key }}"
+        export INPUT_INSTALL_ONLY="${{ inputs.install_only }}"
         export CACHE_HIT="false"
 
         # Run the main installation script
@@ -97,11 +97,11 @@ runs:
     - name: Set cache hit output
       shell: bash
       run: |
-        if [ "${{ steps.cache-stakpak.outputs.cache-hit }}" = "true" ]; then
-          echo "cache-hit=true" >> $GITHUB_OUTPUT
+        if [ "${{ steps.cache-stakpak.outputs.cache_hit }}" = "true" ]; then
+          echo "cache_hit=true" >> $GITHUB_OUTPUT
           echo "Stakpak restored from cache"
         else
-          echo "cache-hit=false" >> $GITHUB_OUTPUT
+          echo "cache_hit=false" >> $GITHUB_OUTPUT
         fi
 
     - name: Add Stakpak to PATH
@@ -110,11 +110,11 @@ runs:
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Configure API key
-      if: inputs.install-only == 'false' && inputs.api-key != ''
+      if: inputs.install_only == 'false' && inputs.api_key != ''
       shell: bash
       run: |
         echo "Configuring Stakpak API key..."
-        stakpak login --api-key "${{ inputs.api-key }}"
+        stakpak login --api-key "${{ inputs.api_key }}"
         echo "API key configured successfully"
 
     - name: Download plugins

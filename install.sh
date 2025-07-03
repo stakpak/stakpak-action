@@ -142,7 +142,7 @@ echo "path=$INSTALL_DIR/$BINARY_NAME" >> $GITHUB_OUTPUT
 
 # Cache hit is handled in the action.yml
 if [ -n "$CACHE_HIT" ]; then
-    echo "cache-hit=$CACHE_HIT" >> $GITHUB_OUTPUT
+    echo "cache_hit=$CACHE_HIT" >> $GITHUB_OUTPUT
 fi
 
 echo "Stakpak CLI $ACTUAL_VERSION installed successfully!"
