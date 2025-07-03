@@ -109,32 +109,12 @@ runs:
       run: |
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: Set API key environment variable
-      if: inputs.install_only == 'false' && inputs.api_key != ''
-      shell: bash
-      run: |
-        echo "Setting API key environment variable..."
-        echo "STAKPAK_API_KEY=${{ inputs.api_key }}" >> $GITHUB_ENV
-        echo "API key environment variable set successfully"
-
     - name: Download plugins
       if: inputs.install_only == 'false' && inputs.api_key != ''
       shell: bash
       run: |
         echo "Downloading warden plugin..."
-        echo "Checking for config file..."
-        if [ -f "$HOME/.stakpak/config.toml" ]; then
-          echo "Config file found"
-        else
-          echo "Config file not found at $HOME/.stakpak/config.toml"
-        fi
-
-        # Try to run the command with timeout to avoid hanging on prompts
-        timeout 30 stakpak warden version || {
-          echo "Error: stakpak warden version command failed or timed out"
-          echo "This might indicate an issue with API key authentication"
-          exit 1
-        }
+        stakpak warden version
 
     - name: Set installation path
       shell: bash

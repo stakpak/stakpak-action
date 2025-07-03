@@ -151,48 +151,16 @@ echo "Binary location: $INSTALL_DIR/$BINARY_NAME"
 # Configure API key if provided and not in install-only mode
 if [ -n "$API_KEY" ] && [ "$INSTALL_ONLY" != "true" ]; then
     echo "Configuring API key..."
-    echo "API key length: ${#API_KEY}"
     
-    # Ensure binary is executable and in PATH
-    chmod +x "$INSTALL_DIR/$BINARY_NAME"
-    
-    # Create config directory first
+    # Create config directory and set environment variable
     mkdir -p "$HOME/.stakpak"
-    
-    # Set environment variable and run login
     export STAKPAK_API_KEY="$API_KEY"
-    echo "Running login command with environment variable..."
     
-    if "$INSTALL_DIR/$BINARY_NAME" login; then
-        echo "API key configured successfully"
-        echo "Verifying config file..."
-        if [ -f "$HOME/.stakpak/config.toml" ]; then
-            echo "Config file created successfully"
-        else
-            echo "Warning: Config file not found at $HOME/.stakpak/config.toml"
-        fi
-    else
-        echo "Error: Login command failed"
-        echo "Trying with --api-key flag as fallback..."
-        if "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"; then
-            echo "API key configured successfully with flag"
-        else
-            echo "Error: Both login methods failed. Check API key validity."
-            exit 1
-        fi
-    fi
-elif [ -n "$API_KEY" ]; then
-    echo "Install-only mode: API key will be configured later"
+    # Run login command
+    "$INSTALL_DIR/$BINARY_NAME" login
+    echo "API key configured successfully"
 fi
 
 # Verify installation
 echo "Verifying installation..."
-if [ -n "$API_KEY" ]; then
-    # API key is available, try version check
-    echo "Testing CLI with API key..."
-    "$INSTALL_DIR/$BINARY_NAME" version || echo "Version check failed - CLI installed but may need different authentication"
-else
-    # No API key provided, skip version check
-    echo "No API key provided - skipping version check"
-    echo "Binary installed successfully but version check requires API key"
-fi
+"$INSTALL_DIR/$BINARY_NAME" version || echo "Version check failed - this may be expected without API key"
