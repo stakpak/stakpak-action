@@ -1,4 +1,4 @@
-# Setup Stakpak Agent Action
+# Setup Stakpak Agent
 
 A GitHub Action to install and setup the [Stakpak Agent CLI](https://github.com/stakpak/agent) in your GitHub Actions workflows.
 
@@ -28,6 +28,19 @@ steps:
     run: stakpak version
 ```
 
+### Run Stakpak Agent with Prompt
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+
+  - name: Setup and Run Stakpak Agent
+    uses: stakpak/agent@v1
+    with:
+      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      prompt: "Analyze this repository for security vulnerabilities and generate a report"
+```
+
 ### Install Specific Version
 
 ```yaml
@@ -49,6 +62,22 @@ steps:
       install-only: "true"
 ```
 
+### Advanced Prompt Configuration
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+
+  - name: Run Stakpak Agent
+    uses: stakpak/agent@v1
+    with:
+      api-key: ${{ secrets.STAKPAK_API_KEY }}
+      prompt: "Review this pull request to make sure Terraform code follows our natural language linting rules"
+      max_steps: 30
+      verbose: true
+      workdir: "./src"
+```
+
 ## Inputs
 
 | Input           | Description                                                 | Required | Default  |
@@ -57,6 +86,10 @@ steps:
 | `api-key`       | Stakpak API key for authentication                          | No       | `''`     |
 | `install-only`  | Only install Stakpak CLI without configuring API key        | No       | `false`  |
 | `cache-enabled` | Enable caching of Stakpak binary for faster subsequent runs | No       | `true`   |
+| `prompt`        | Prompt to run Stakpak Agent with                            | No       | `''`     |
+| `max_steps`     | Maximum number of steps for Stakpak Agent execution         | No       | `20`     |
+| `verbose`       | Enable verbose output for Stakpak Agent execution           | No       | `true`   |
+| `workdir`       | Working directory for Stakpak Agent execution               | No       | `''`     |
 
 ## Outputs
 
@@ -80,14 +113,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Stakpak CLI
+      - name: Setup and Run Stakpak Agent
         uses: stakpak/agent@v1
         with:
           api-key: ${{ secrets.STAKPAK_API_KEY }}
-
-      - name: Run Stakpak in non-interactive mode
-        run: |
-          stakpak --async --approve "Analyze this repository for security vulnerabilities and generate a report"
+          prompt: "Analyze this repository for security vulnerabilities and generate a report"
+          max_steps: 25
 ```
 
 ### Multi-Platform Testing
@@ -129,6 +160,32 @@ steps:
     run: |
       echo "Installed version: ${{ steps.setup-stakpak.outputs.version }}"
 ```
+
+## Stakpak Agent Execution
+
+This action can automatically run Stakpak Agent with a prompt after installation. When a `prompt` is provided, the action will execute Stakpak Agent asynchronously with the specified configuration.
+
+### Prompt Options
+
+- **`prompt`**: The task or question you want Stakpak Agent to execute
+- **`max_steps`**: Maximum number of steps the agent can take (default: 20)
+- **`verbose`**: Enable detailed output during execution (default: true)
+- **`workdir`**: Working directory for the agent execution (default: repository root)
+
+### How it Works
+
+When you provide a prompt, the action runs:
+
+```bash
+stakpak --async --verbose --workdir <workdir> --max-steps <max_steps> "<prompt>"
+```
+
+### Example Use Cases
+
+- **Security Analysis**: `"Analyze this repository for security vulnerabilities"`
+- **Code Review**: `"Review the recent changes and suggest improvements"`
+- **Documentation**: `"Generate documentation for the API endpoints"`
+- **Testing**: `"Create unit tests for the new features"`
 
 ## Caching
 

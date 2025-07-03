@@ -1,4 +1,4 @@
-name: "Setup Stakpak Agent Action"
+name: "Setup Stakpak Agent"
 description: "Install and setup Stakpak Agent for GitHub Actions workflows"
 author: "Stakpak"
 branding:
@@ -25,6 +25,26 @@ inputs:
     description: "Enable caching of Stakpak binary"
     required: false
     default: "true"
+
+  prompt:
+    description: "Prompt to run Stakpak Agent with"
+    required: false
+    default: ""
+
+  max_steps:
+    description: "Maximum number of steps for Stakpak Agent execution"
+    required: false
+    default: "20"
+
+  verbose:
+    description: "Enable verbose output for Stakpak Agent execution"
+    required: false
+    default: "true"
+
+  workdir:
+    description: "Working directory for Stakpak Agent execution"
+    required: false
+    default: ""
 
 outputs:
   version:
@@ -108,3 +128,25 @@ runs:
       run: |
         stakpak version
         echo "stakpak-path=$HOME/.local/bin/stakpak" >> $GITHUB_OUTPUT
+
+    - name: Run Stakpak Agent
+      if: inputs.prompt != ''
+      shell: bash
+      run: |
+        STAKPAK_CMD="stakpak --async"
+
+        if [ "${{ inputs.verbose }}" = "true" ]; then
+          STAKPAK_CMD="$STAKPAK_CMD --verbose"
+        fi
+
+        if [ "${{ inputs.workdir }}" != "" ]; then
+          STAKPAK_CMD="$STAKPAK_CMD --workdir ${{ inputs.workdir }}"
+        fi
+
+        if [ "${{ inputs.max_steps }}" != "" ]; then
+          STAKPAK_CMD="$STAKPAK_CMD --max-steps ${{ inputs.max_steps }}"
+        fi
+
+        STAKPAK_CMD="$STAKPAK_CMD \"${{ inputs.prompt }}\""
+
+        eval $STAKPAK_CMD
