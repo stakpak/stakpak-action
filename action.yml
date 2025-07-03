@@ -109,30 +109,41 @@ runs:
       run: |
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: Configure API key
+    - name: Set API key environment variable
       if: inputs.install_only == 'false' && inputs.api_key != ''
       shell: bash
       run: |
-        echo "Configuring Stakpak API key..."
-        stakpak login --api-key "${{ inputs.api_key }}"
-        echo "API key configured successfully"
+        echo "Setting API key environment variable..."
+        echo "STAKPAK_API_KEY=${{ inputs.api_key }}" >> $GITHUB_ENV
+        echo "API key environment variable set successfully"
 
     - name: Download plugins
+      if: inputs.install_only == 'false' && inputs.api_key != ''
       shell: bash
       run: |
         echo "Downloading warden plugin..."
-        stakpak warden version
+        echo "API key configured: $(if [ -n "$STAKPAK_API_KEY" ]; then echo "Yes"; else echo "No"; fi)"
 
-    - name: Verify installation
+        # Try to run the command with timeout to avoid hanging on prompts
+        timeout 30 stakpak warden version || {
+          echo "Error: stakpak warden version command failed or timed out"
+          echo "This might indicate an issue with API key authentication"
+          exit 1
+        }
+
+    - name: Set installation path
       shell: bash
       run: |
-        stakpak version
         echo "stakpak-path=$HOME/.local/bin/stakpak" >> $GITHUB_OUTPUT
+        echo "Installation path set: $HOME/.local/bin/stakpak"
 
     - name: Run Stakpak Agent
       if: inputs.prompt != ''
       shell: bash
       run: |
+        echo "Running Stakpak Agent with prompt: ${{ inputs.prompt }}"
+        echo "API key available: $(if [ -n "$STAKPAK_API_KEY" ]; then echo "Yes"; else echo "No"; fi)"
+
         STAKPAK_CMD="stakpak --async"
 
         if [ "${{ inputs.verbose }}" = "true" ]; then
@@ -149,4 +160,5 @@ runs:
 
         STAKPAK_CMD="$STAKPAK_CMD \"${{ inputs.prompt }}\""
 
+        echo "Executing: $STAKPAK_CMD"
         eval $STAKPAK_CMD

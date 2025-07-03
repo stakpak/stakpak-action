@@ -148,5 +148,20 @@ fi
 echo "Stakpak CLI $ACTUAL_VERSION installed successfully!"
 echo "Binary location: $INSTALL_DIR/$BINARY_NAME"
 
+# Configure API key if provided
+if [ -n "$API_KEY" ]; then
+    echo "Configuring API key..."
+    "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"
+    echo "API key configured successfully"
+fi
+
 # Verify installation
-"$INSTALL_DIR/$BINARY_NAME" version
+echo "Verifying installation..."
+if [ -n "$API_KEY" ]; then
+    # API key is available, version check should work
+    "$INSTALL_DIR/$BINARY_NAME" version
+else
+    # No API key provided, skip version check
+    echo "No API key provided - skipping version check"
+    echo "Binary installed successfully but version check requires API key"
+fi
