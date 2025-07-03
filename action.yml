@@ -1,0 +1,110 @@
+name: "Setup Stakpak Agent Action"
+description: "Install and setup Stakpak Agent for GitHub Actions workflows"
+author: "Stakpak"
+branding:
+  icon: "terminal"
+  color: "blue"
+
+inputs:
+  version:
+    description: 'Version of Stakpak to install (e.g., "v0.1.118", "latest")'
+    required: false
+    default: "latest"
+
+  api-key:
+    description: "Stakpak API key for authentication"
+    required: false
+    default: ""
+
+  install-only:
+    description: "Only install Stakpak CLI without configuring API key"
+    required: false
+    default: "false"
+
+  cache-enabled:
+    description: "Enable caching of Stakpak binary"
+    required: false
+    default: "true"
+
+outputs:
+  version:
+    description: "The version of Stakpak CLI that was installed"
+
+  path:
+    description: "Path to the installed Stakpak CLI binary"
+
+  cache-hit:
+    description: "Whether the installation was restored from cache"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve version
+      id: resolve-version
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          RESOLVED_VERSION=$(curl -s https://api.github.com/repos/stakpak/agent/releases/latest | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
+        else
+          RESOLVED_VERSION="${{ inputs.version }}"
+        fi
+        echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
+        echo "Resolved version: $RESOLVED_VERSION"
+
+    - name: Cache Stakpak binary
+      if: inputs.cache-enabled == 'true'
+      uses: actions/cache@v4
+      id: cache-stakpak
+      with:
+        path: ~/.local/bin/stakpak*
+        key: stakpak-${{ runner.os }}-${{ runner.arch }}-${{ steps.resolve-version.outputs.version }}
+        restore-keys: |
+          stakpak-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Setup Stakpak Agent
+      if: steps.cache-stakpak.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        # Set action inputs as environment variables
+        export INPUT_VERSION="${{ inputs.version }}"
+        export INPUT_API_KEY="${{ inputs.api-key }}"
+        export INPUT_INSTALL_ONLY="${{ inputs.install-only }}"
+        export CACHE_HIT="false"
+
+        # Run the main installation script
+        bash "${{ github.action_path }}/install.sh"
+
+    - name: Set cache hit output
+      shell: bash
+      run: |
+        if [ "${{ steps.cache-stakpak.outputs.cache-hit }}" = "true" ]; then
+          echo "cache-hit=true" >> $GITHUB_OUTPUT
+          echo "Stakpak restored from cache"
+        else
+          echo "cache-hit=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Add Stakpak to PATH
+      shell: bash
+      run: |
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Configure API key
+      if: inputs.install-only == 'false' && inputs.api-key != ''
+      shell: bash
+      run: |
+        echo "Configuring Stakpak API key..."
+        stakpak login --api-key "${{ inputs.api-key }}"
+        echo "API key configured successfully"
+
+    - name: Download plugins
+      shell: bash
+      run: |
+        echo "Downloading warden plugin..."
+        stakpak warden version
+
+    - name: Verify installation
+      shell: bash
+      run: |
+        stakpak version
+        echo "stakpak-path=$HOME/.local/bin/stakpak" >> $GITHUB_OUTPUT
