@@ -152,13 +152,18 @@ echo "Binary location: $INSTALL_DIR/$BINARY_NAME"
 if [ -n "$API_KEY" ] && [ "$INSTALL_ONLY" != "true" ]; then
     echo "Configuring API key..."
     echo "API key length: ${#API_KEY}"
-    echo "Running login command..."
     
     # Ensure binary is executable and in PATH
     chmod +x "$INSTALL_DIR/$BINARY_NAME"
     
-    # Run login command with error handling
-    if "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"; then
+    # Create config directory first
+    mkdir -p "$HOME/.stakpak"
+    
+    # Set environment variable and run login
+    export STAKPAK_API_KEY="$API_KEY"
+    echo "Running login command with environment variable..."
+    
+    if "$INSTALL_DIR/$BINARY_NAME" login; then
         echo "API key configured successfully"
         echo "Verifying config file..."
         if [ -f "$HOME/.stakpak/config.toml" ]; then
@@ -168,14 +173,11 @@ if [ -n "$API_KEY" ] && [ "$INSTALL_ONLY" != "true" ]; then
         fi
     else
         echo "Error: Login command failed"
-        echo "Attempting to create config directory..."
-        mkdir -p "$HOME/.stakpak"
-        
-        # Try login again
+        echo "Trying with --api-key flag as fallback..."
         if "$INSTALL_DIR/$BINARY_NAME" login --api-key "$API_KEY"; then
-            echo "API key configured successfully on second attempt"
+            echo "API key configured successfully with flag"
         else
-            echo "Error: Login failed twice. Check API key validity."
+            echo "Error: Both login methods failed. Check API key validity."
             exit 1
         fi
     fi
