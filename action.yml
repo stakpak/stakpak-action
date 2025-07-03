@@ -1,4 +1,4 @@
-name: "Setup Stakpak Agent Action"
+name: "Stakpak Agent"
 description: "Install and setup Stakpak Agent for GitHub Actions workflows"
 author: "Stakpak"
 branding:
