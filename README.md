@@ -20,7 +20,7 @@ steps:
   - uses: actions/checkout@v4
 
   - name: Setup Stakpak CLI
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
 
@@ -35,7 +35,7 @@ steps:
   - uses: actions/checkout@v4
 
   - name: Setup and Run Stakpak Agent
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
       prompt: "Analyze this repository for security vulnerabilities and generate a report"
@@ -46,7 +46,7 @@ steps:
 ```yaml
 steps:
   - name: Setup Stakpak Agent
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       version: "v0.1.118"
       api_key: ${{ secrets.STAKPAK_API_KEY }}
@@ -57,7 +57,7 @@ steps:
 ```yaml
 steps:
   - name: Setup Stakpak Agent
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       install_only: "true"
 ```
@@ -69,7 +69,7 @@ steps:
   - uses: actions/checkout@v4
 
   - name: Run Stakpak Agent
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
       prompt: "Review this pull request to make sure Terraform code follows our natural language linting rules"
@@ -114,7 +114,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup and Run Stakpak Agent
-        uses: stakpak/agent@v1
+        uses: stakpak/stakpak-action@v1
         with:
           api_key: ${{ secrets.STAKPAK_API_KEY }}
           prompt: "Analyze this repository for security vulnerabilities and generate a report"
@@ -138,7 +138,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Stakpak Agent
-        uses: stakpak/agent@v1
+        uses: stakpak/stakpak-action@v1
         with:
           api_key: ${{ secrets.STAKPAK_API_KEY }}
 
@@ -152,7 +152,7 @@ jobs:
 steps:
   - name: Setup Stakpak Agent
     id: setup-stakpak
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
 
@@ -206,7 +206,7 @@ This action automatically caches the Stakpak binary to speed up subsequent workf
 ```yaml
 steps:
   - name: Setup Stakpak Agent (no cache)
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
       cache_enabled: "false"
@@ -220,7 +220,7 @@ You can check if the binary was restored from cache using the `cache_hit` output
 steps:
   - name: Setup Stakpak Agent
     id: setup-stakpak
-    uses: stakpak/agent@v1
+    uses: stakpak/stakpak-action@v1
     with:
       api_key: ${{ secrets.STAKPAK_API_KEY }}
 
