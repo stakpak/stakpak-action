@@ -140,6 +140,7 @@ runs:
           STAKPAK_ARGS+=("--max-steps" "${{ inputs.max_steps }}")
         fi
 
-        PROMPT="${{ inputs.prompt }}"
-
-        stakpak "${STAKPAK_ARGS[@]}" "$PROMPT"
+        # Use heredoc to handle multiline prompt properly
+        stakpak "${STAKPAK_ARGS[@]}" << 'EOF'
+          ${{ inputs.prompt }}
+        EOF
