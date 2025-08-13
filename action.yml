@@ -126,24 +126,20 @@ runs:
       if: inputs.prompt != ''
       shell: bash
       run: |
-        echo "Running Stakpak Agent with prompt: ${{ inputs.prompt }}"
-        echo "API key available: $(if [ -n "$STAKPAK_API_KEY" ]; then echo "Yes"; else echo "No"; fi)"
-
-        STAKPAK_CMD="stakpak --async"
+        STAKPAK_ARGS=("--async")
 
         if [ "${{ inputs.verbose }}" = "true" ]; then
-          STAKPAK_CMD="$STAKPAK_CMD --verbose"
+          STAKPAK_ARGS+=("--verbose")
         fi
 
         if [ "${{ inputs.workdir }}" != "" ]; then
-          STAKPAK_CMD="$STAKPAK_CMD --workdir ${{ inputs.workdir }}"
+          STAKPAK_ARGS+=("--workdir" "${{ inputs.workdir }}")
         fi
 
         if [ "${{ inputs.max_steps }}" != "" ]; then
-          STAKPAK_CMD="$STAKPAK_CMD --max-steps ${{ inputs.max_steps }}"
+          STAKPAK_ARGS+=("--max-steps" "${{ inputs.max_steps }}")
         fi
 
-        STAKPAK_CMD="$STAKPAK_CMD \"${{ inputs.prompt }}\""
+        PROMPT="${{ inputs.prompt }}"
 
-        echo "Executing: $STAKPAK_CMD"
-        eval $STAKPAK_CMD
+        stakpak "${STAKPAK_ARGS[@]}" "$PROMPT"
